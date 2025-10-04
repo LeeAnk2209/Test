@@ -1,10 +1,25 @@
 const express = require("express");
 const PORT = 3000;
 const app = express();
+const swaggerUi= require('swagger-ui-express');
+const swaggerJsdoc= require('swagger-jsdoc');
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Hello World',
+      version: '1.0.0',
+    },
+  },
+  apis: ['index.js'], // files containing annotations as above
+};
+const swaggerSpec= swaggerJsdoc(options);
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use(express.json());
 app.listen(
     PORT,() => console.log(`its alive on http://localhost:${PORT}`)
 )
-app.use(express.json());
+
 app.get('/leeank', (req,res) => {
     res.status(200).send({
         name:'Lee Ank',
