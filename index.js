@@ -41,9 +41,11 @@ app.post('/leeank/:id', (req,res) => {
     if (age<18){
         res.status(400).send({warning:'you are not old enough'})
     }
-    res.json(user);
+    res.send(user);
 })
-
-app.listen(
-    PORT,() => console.log(`its alive on http://localhost:${PORT}`)
-)
+let db;
+async function startServer(){
+  db= await JSONFilePreset('db.json', { toDoList: [], users:[] });
+  app.listen(PORT,() => console.log(`its alive on http://localhost:${PORT}`))
+}
+startServer()
