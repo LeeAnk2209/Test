@@ -37,6 +37,7 @@ app.get("/users/:id", (req,res) => {
     res.json(user);
   }
 });
+
 app.post("/users",async (req,res)=>{
   if (!req.body?.email){
     return res.status(400).json({message: "Email is required"});
@@ -56,6 +57,7 @@ app.post("/users",async (req,res)=>{
   await db.update(data => {data.users.push( user)});
   res.json(db.data.users);
 });
+
 app.patch("/users/:id",async (req,res)=>{
   const user = db.data.users.find(user => user.id == req.params.id);
   if (!user){
@@ -75,6 +77,17 @@ app.patch("/users/:id",async (req,res)=>{
   await db.update(data => {data.users[index] = updated;});
   res.json(db.data.users[index]);
 })
+
+app.delete("/users/:id", async(req,res)=>{
+  const user= db.data.users.find(user => user.id == req.params.id);
+  const index= db.data.users.indexOf(user);
+  if (!user){
+    return res.status(400).json({message: "User not found"})
+  }
+  await db.update(data => {data.users.splice(index,1)});
+  console.log("User deleted");
+  res.json(db.data.users);
+});
 
 // app.get('/leeank', (req,res) => {
 //     res.status(200).send({
