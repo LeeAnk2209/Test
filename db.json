@@ -1,0 +1,21 @@
+{
+  "toDoList": [],
+  "users": [
+    {
+      "id": "002ea756-3ec6-4f79-b2e2-67cc0d6e8f0a",
+      "name": "Nguyen Le Anh",
+      "age": null,
+      "address": null,
+      "email": "abc",
+      "phone": null
+    },
+    {
+      "id": "8267c049-125d-4b50-a6b2-248e26d01dbb",
+      "name": "Nguyen Le Anh",
+      "age": null,
+      "address": null,
+      "email": "abcd",
+      "phone": null
+    }
+  ]
+}
