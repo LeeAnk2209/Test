@@ -107,7 +107,7 @@ const httpStatusCodes = [
 ];
 
 function getStatusInfo(code){
-    return httpStatusCodes.find(data => {data.code === Number(code)});
+    return httpStatusCodes.find(data => {return data.code === parseInt(code)});
 };
 module.exports = {
   httpStatusCodes,

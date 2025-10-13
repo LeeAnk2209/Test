@@ -34,10 +34,12 @@ app.get('/', (req,res)=> {res.status(200).send("Home page")});
 app.get("/users", (req,res)=> {res.json(db.data.users)});
 app.get("/users/:id", (req,res) => {
   const {id}=req.params;
-  const user = db.data.users.find(user => user.id == id)
+  const user = db.data.users.find(user => user.id == id);
   if (!user){
-    res.json(user);
+    res.status(404).json({message:" user not found"})
   }
+  res.json(user);
+
 });
 
 app.post("/users",async (req,res)=>{
@@ -96,6 +98,8 @@ app.get("/status_code", (req,res)=>{
 app.get("/status_code/:id", (req,res) => {
   const {id}= req.params;
   let statusInfo = getStatusInfo(id);
+  console.log("params id: "+id);
+  console.log(statusInfo);
   if (!statusInfo){
     return res.status(400).json({message:" not valid status code"})
   }
