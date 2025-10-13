@@ -15,10 +15,12 @@ const options = {
   },
   apis: ['index.js'], // files containing annotations as above
 };
+const {httpStatusCodes, getStatusInfo}= require('./https_status_code');
 const swaggerSpec= swaggerJsdoc(options);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+app.use('/static', express.static("static"));
 // /**
 //  * @swagger
 //  * /leeank:
@@ -85,9 +87,20 @@ app.delete("/users/:id", async(req,res)=>{
     return res.status(400).json({message: "User not found"})
   }
   await db.update(data => {data.users.splice(index,1)});
-  console.log("User deleted");
-  res.json(db.data.users);
+  res.json({users_remain: db.data.users, message: "User deleted"});
 });
+
+app.get("/status_code", (req,res)=>{
+  res.json(httpStatusCodes)
+})
+app.get("/status_code/:id", (req,res) => {
+  const {id}= req.params;
+  let statusInfo = getStatusInfo(id);
+  if (!statusInfo){
+    return res.status(400).json({message:" not valid status code"})
+  }
+  res.json(statusInfo);
+})
 
 // app.get('/leeank', (req,res) => {
 //     res.status(200).send({
