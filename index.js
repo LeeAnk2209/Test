@@ -21,73 +21,83 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use('/static', express.static("static"));
-// /**
-//  * @swagger
-//  * /leeank:
-//  *   get:
-//  *     summary: Lấy danh sách người dùng
-//  *     responses:
-//  *       200:
-//  *         description: Thành công
-//  */
-app.get('/', (req,res)=> {res.status(200).send("Home page")});
-app.get("/users", (req,res)=> {res.json(db.data.users)});
-app.get("/users/:id", (req,res) => {
-  const {id}=req.params;
-  const user = db.data.users.find(user => user.id == id);
-  if (!user){
-    res.status(404).json({message:" user not found"})
+
+// ALL MIDDLEWARES
+
+const findUserById = (req, res, next) => {
+  const user = db.data.users.find((user) => user.id == req.params.id);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
   }
-  res.json(user);
+  req.user = user;
+  next();
+};
 
-});
-
-app.post("/users",async (req,res)=>{
+const checkEmail = async (req, res, next) => {
+  const foundEmail= db.data.users.find(user => user.email == req.body.email);
   if (!req.body?.email){
     return res.status(400).json({message: "Email is required"});
+  }else if (foundEmail){
+    return res.status(400).json({message: "Email is already used"});
   }
-  const user={
-    id : uuidv4(),
-    name: req.body?.name ?? "Annonymous",
-    age: req.body?.address?? null,
-    address: req.body?.address ?? null,
-    email: req.body.email,
-    phone: req.body?.phone ?? null
-  };
-  const foundEmail= db.data.users.find(user => user.email == req.body.email);
-  if (foundEmail){
-    return res.status(400).json({message: "Email is already used"})
-  }
-  await db.update(data => {data.users.push( user)});
-  res.json(db.data.users);
-});
+  next();
+};
 
-app.patch("/users/:id",async (req,res)=>{
-  const user = db.data.users.find(user => user.id == req.params.id);
-  if (!user){
-    return res.status(400).json({message:"User not found"});
-  }
-  if (req.body?.email){
-    return res.status(400).json({ message: "Email is not allowed to be updated" });
-  }
+const idAllowance = (req,res,next)=> {
   if (req.body?.id){
     return res.status(400).json({ message: "Id is not allowed to be updated" });
   }
-  const index = db.data.users.indexOf(user);
-  let updated ={
-    ...user,
-    ...req.body
+  next();
+}
+const emailAllowance = (req,res,next)=> {
+  if (req.body?.email){
+    return res.status(400).json({ message: "email is not allowed to be updated" });
+  }
+  next();
+}
+
+const completedAllowance = (req,res,next)=> {
+  if (req.body?.completed){
+    return res.status(400).json({ message: "progress is not allowed to be updated" });
+  }
+  next();
+}
+
+const findToDoById = (req, res, next) => {
+  const toDo = db.data.todoLists.find(data => data.id == req.params.id);
+  if (!user) {
+    return res.status(404).json({ message: "Todo not found" });
+  }
+  req.toDo = toDo;
+  next();
+};
+
+//
+
+app.get('/', (req,res)=> {res.status(200).send("Home page")});
+app.get("/users", (req,res)=> {res.json(db.data.users)});
+app.get("/users/:id",findUserById, (req,res) => {
+  res.json(req.user);
+});
+
+app.post("/users",checkEmail, async (req,res)=>{
+  res.json(req.user);
+});
+
+app.patch("/users/:id", checkEmail, findUserById, idAllowance, async (req,res)=>{
+  const index = db.data.todoLists.indexOf(todoList);
+  let updated = {
+    ...todoList,
+    ...req.body,
   };
-  await db.update(data => {data.users[index] = updated;});
-  res.json(db.data.users[index]);
+  await db.update(({ todoLists }) => {
+    todoLists[index] = updated;
+  });
+  res.json(updated);
 })
 
-app.delete("/users/:id", async(req,res)=>{
-  const user= db.data.users.find(user => user.id == req.params.id);
-  const index= db.data.users.indexOf(user);
-  if (!user){
-    return res.status(400).json({message: "User not found"})
-  }
+app.delete("/users/:id", findUserById, async(req,res)=>{
+  const index= db.data.users.indexOf(req.user);
   await db.update(data => {data.users.splice(index,1)});
   res.json({users_remain: db.data.users, message: "User deleted"});
 });
@@ -106,21 +116,6 @@ app.get("/status_code/:id", (req,res) => {
   res.json(statusInfo);
 })
 
-// app.get('/leeank', (req,res) => {
-//     res.status(200).send({
-//         name:'Lee Ank',
-//         age: 19
-//     })
-// });
-// app.post('/leeank/:id', (req,res) => {
-//     const {id} = req.params;
-//     const  {name, age} = req.body;
-//     const user = [{Id: id, Name: name, Age: age}]
-//     if (age<18){
-//         res.status(400).send({warning:'you are not old enough'})
-//     }
-//     res.send(user);
-// })
 let db;
 async function startServer(){
   db= await JSONFilePreset('db.json', { toDoList: [], users:[] });
