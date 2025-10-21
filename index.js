@@ -23,7 +23,6 @@ app.use(express.urlencoded({extended: true}));
 app.use('/static', express.static("static"));
 
 // ALL MIDDLEWARES
-
 const findUserById = (req, res, next) => {
   const user = db.data.users.find((user) => user.id == req.params.id);
   if (!user) {
@@ -51,14 +50,14 @@ const idAllowance = (req,res,next)=> {
 }
 const emailAllowance = (req,res,next)=> {
   if (req.body?.email){
-    return res.status(400).json({ message: "email is not allowed to be updated" });
+    return res.status(400).json({ message: "Email is not allowed to be updated" });
   }
   next();
 }
 
 const completedAllowance = (req,res,next)=> {
   if (req.body?.completed){
-    return res.status(400).json({ message: "progress is not allowed to be updated" });
+    return res.status(400).json({ message: "Progress is not allowed to be updated" });
   }
   next();
 }
@@ -71,9 +70,8 @@ const findToDoById = (req, res, next) => {
   req.toDo = toDo;
   next();
 };
-
 //
-
+//
 app.get('/', (req,res)=> {res.status(200).send("Home page")});
 app.get("/users", (req,res)=> {res.json(db.data.users)});
 app.get("/users/:id",findUserById, (req,res) => {
@@ -115,6 +113,7 @@ app.get("/status_code/:id", (req,res) => {
   }
   res.json(statusInfo);
 })
+//
 
 let db;
 async function startServer(){
