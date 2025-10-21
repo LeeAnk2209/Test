@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/LeeAnk2209/Test#readme",
   "dependencies": {
+    "config": "^4.1.1",
     "express": "^5.1.0",
     "lowdb": "^7.0.1",
     "swagger-jsdoc": "^6.2.8",
